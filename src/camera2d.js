@@ -147,11 +147,20 @@ export class Camera2D {
       return (0.3 * min_dim) / Math.max(body.orbit_radius, body.radius * 8);
     }
     // Planet: frame its moon system if it has one, else ~40 planet radii.
-    const outermost = body.moons.reduce(
-      (r, moon) => Math.max(r, moon.orbit_radius),
-      0
-    );
-    const frame_radius = Math.max(outermost * 1.25, body.radius * 40);
+    // A single far-flung outlier (Iapetus orbits ~3× beyond Titan) would
+    // shrink the whole family to dots, so when the outermost orbit dwarfs
+    // the next one, frame the second-outermost instead.
+    const orbits = body.moons
+      .map((moon) => moon.orbit_radius)
+      .sort((a, b) => b - a);
+    let frame_orbit = 0;
+    if (orbits.length === 1) {
+      frame_orbit = orbits[0] * 1.25;
+    } else if (orbits.length > 1) {
+      frame_orbit =
+        orbits[0] > orbits[1] * 2.2 ? orbits[1] * 1.35 : orbits[0] * 1.25;
+    }
+    const frame_radius = Math.max(frame_orbit, body.radius * 26);
     return (0.35 * min_dim) / frame_radius;
   }
 
