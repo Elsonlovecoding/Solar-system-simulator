@@ -172,10 +172,24 @@
     <div class="boot-error-card">
       <h2>Couldn't start the simulation</h2>
       <p id="boot-error-message"></p>
-      <p class="boot-error-hint">Serve this folder over HTTP (e.g. <code>python3 -m http.server</code>) — browsers block <code>file://</code> module loading.</p>
+      <p class="boot-error-hint">If you opened this file straight from disk, make sure the <code>dist/</code> folder sits next to it (rebuild with <code>npm run build</code>). Alternatively, serve the folder over HTTP: <code>python3 -m http.server</code>.</p>
     </div>
   </div>
 
-  <script type="module" src="main.js"></script>
+  <script>
+    // Browsers block ES modules and fetch() on file://, so double-clicking
+    // index.html boots the pre-built single-file bundle instead. Served over
+    // HTTP, the modular source loads directly (nicer for development).
+    (function () {
+      const script = document.createElement('script');
+      if (location.protocol === 'file:') {
+        script.src = 'dist/orrery.bundle.js';
+      } else {
+        script.type = 'module';
+        script.src = 'main.js';
+      }
+      document.body.appendChild(script);
+    })();
+  </script>
 </body>
 </html>

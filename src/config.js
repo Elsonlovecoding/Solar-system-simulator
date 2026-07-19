@@ -61,11 +61,25 @@ function coerce_value(value) {
 
 /** Fetch and parse solar.conf. Throws with a readable message on failure. */
 export async function load_config(url = 'solar.conf') {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Could not load ${url} (HTTP ${response.status})`);
+  // Opened from disk (file://), fetch is blocked outright — the standalone
+  // bundle embeds the conf text for exactly this case, so don't even try
+  // (a doomed fetch would just spray a CORS error into the console).
+  const embedded =
+    typeof window !== 'undefined' ? window.__SOLAR_CONF__ : undefined;
+  if (embedded && location.protocol === 'file:') {
+    return parse_conf(embedded);
   }
-  return parse_conf(await response.text());
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Could not load ${url} (HTTP ${response.status})`);
+    }
+    return parse_conf(await response.text());
+  } catch (error) {
+    if (embedded) return parse_conf(embedded);
+    throw error;
+  }
 }
 
 // ---------------------------------------------------------------------------

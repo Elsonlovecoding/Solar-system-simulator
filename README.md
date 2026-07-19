@@ -4,7 +4,9 @@ Orrery is a real-gravity planetarium that runs entirely in your browser. All 29 
 
 ## Quick start
 
-The app uses ES modules and `fetch`es `solar.conf` at boot, so browsers refuse to run it from `file://` — serve the folder with any static HTTP server:
+**Just double-click `index.html`.** That's it — the page detects it was opened straight from disk and boots a pre-built single-file bundle (`dist/orrery.bundle.js`, committed to the repo), so no server, install, or build step is needed.
+
+For development, serve the folder instead — then the browser loads the modular source directly and your edits to `src/` and `solar.conf` apply on reload:
 
 ```sh
 # Python (built in almost everywhere)
@@ -16,7 +18,14 @@ npx serve -l 8000
 
 Then open <http://localhost:8000>.
 
-That's it — there is no build step, no install, and no network access after the page loads. Everything is vendored: Three.js r160 lives in `lib/`, and the Space Grotesk and Inter fonts live in `assets/fonts/`. The app works fully offline.
+If you change the source and want the double-click path to pick the changes up too, rebuild the bundle once:
+
+```sh
+npm install
+npm run build
+```
+
+Either way there is no network access after the page loads. Everything is vendored: Three.js r160 lives in `lib/`, and the Space Grotesk and Inter fonts live in `assets/fonts/`. The app works fully offline.
 
 ## Controls
 
